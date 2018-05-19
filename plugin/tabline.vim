@@ -19,9 +19,21 @@ function! Tabline()
   let s = ''
   for i in range(tabpagenr('$'))
     let tab = i + 1
-    let winnr = tabpagewinnr(tab)
     let buflist = tabpagebuflist(tab)
-    let bufnr = buflist[winnr - 1]
+
+    " https://vi.stackexchange.com/questions/12705/how-can-i-keep-the-tab-title-text-fixed-during-movement-through-separate-split
+    let bufignore = ['nerdtree', 'tagbar', 'codi', 'help']
+
+    " Set the tab title to the name of the buffer which is not in the ignore list
+    for b in buflist
+      let buftype = getbufvar(b, "&filetype")
+      if index(bufignore, buftype) == -1 " index() returns -1 if the item is not contained in the ignore list
+        let bufnr = b
+        break
+      elseif b == buflist[-1]
+        let bufnr = b
+      endif
+    endfor
     let bufname = bufname(bufnr)
     let bufmodified = getbufvar(bufnr, "&mod")
 
